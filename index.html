@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Project</title>
+</head>
+<style type="text/css">
+    .container{
+        top: 7%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        position: absolute;
+    }
+    #InputFile{
+        font-size: 15px;
+        background: white;
+        bottom: 50px;
+        border-radius: 10px;
+        box-shadow: 5px 5px 10px black;
+        width: 400px;
+        height: 40px;
+        outline: none;
+    }
+
+    ::-webkit-file-upload-button{
+        color: white;
+        background: #206a5d;
+        padding: 20px;
+        border: none;
+        border-radius: 10px;
+        outline: none;
+    }
+    ::-webkit-file-upload-button:hover{
+        background: #438a5e;
+    }
+    table {
+        top: 17%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        position: absolute;
+        text-align: center;
+        border-collapse: collapse;
+        border-radius: 10px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        font-family: "Quicksand", sans-serif;
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+    th {
+        background: #0a5fca;
+        color: #ffffff;
+        text-align: left;
+    }
+
+    th,
+    td {
+        padding: 10px 20px;
+    }
+
+    tr:nth-child(even) {
+        background: #D4D9DB;
+    }
+
+</style>
+<body>
+<div class="container">
+<input type="file" id="InputFile" style="padding-bottom: 15px">
+</div>
+<table id="filer"></table>
+</table>
+<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.1/papaparse.min.js"></script>
+<script>
+    class Table {
+        constructor(root) {
+            this.root = root;
+        }
+        update(data, Columnshead = []) {
+            this.clear();
+            this.setHeader(Columnshead);
+            this.setBody(data);
+        }
+        clear() {
+            this.root.innerHTML = "";
+        }
+        setHeader(Columnshead) {
+            this.root.insertAdjacentHTML(
+                "afterbegin",
+                `
+            <thead>
+                <tr>
+                    ${Columnshead.map((text) => `<th>${text}</th>`).join("")}
+                </tr>
+            </thead>
+        `
+            );
+        }
+        setBody(data) {
+            const rowsH = data.map((row) => {
+                return `
+                <tr>
+                    ${row.map((text) => `<td>${text}</td>`).join("")}
+                </tr>
+            `;
+            });
+
+            this.root.insertAdjacentHTML(
+                "beforeend",
+                `
+            <tbody>
+                ${rowsH.join("")}
+            </tbody>
+        `
+            );
+        }
+    }
+
+    const tableR = document.querySelector("#filer");
+    const InputFile = document.querySelector("#InputFile");
+    const table = new Table(tableR);
+
+    InputFile.addEventListener("change", (e) => {
+        Papa.parse(InputFile.files[0], {
+            delimiter: ",",
+            skipEmptyLines: true,
+            complete: (results) => {
+                table.update(results.data.slice(1), results.data[0]);
+            }
+        });
+    });
+
+</script>
+</body>
+</html>
